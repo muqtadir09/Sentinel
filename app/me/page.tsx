@@ -33,13 +33,14 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
-import { Badge } from "/components/ui/badge"
+import { Badge } from "../../components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ProtectedRoute } from "@/components/protected-route"
 import { useAuth } from "@/contexts/auth-context"
 
 // API client
 import { api } from "@/lib/api"
+import { APIResponse } from "@/types"
 
 interface UserProfile {
   user_hash: string
@@ -94,9 +95,13 @@ function MePageContent() {
   const fetchMeData = async () => {
     try {
       setLoading(true)
-      const response = await api.get("/me")
-      setData(response.data)
-      setError(null)
+      const data = await api.get<MeData>('/me')
+      if (data && data.user) {
+        setData(data)
+        setError(null)
+      } else {
+        setError("Failed to load your data")
+      }
     } catch (err: any) {
       setError(err.response?.data?.detail || "Failed to load your data")
     } finally {
@@ -125,7 +130,7 @@ function MePageContent() {
   const pauseMonitoring = async (hours: number) => {
     try {
       setUpdating(true)
-      await api.post(`/me/pause-monitoring?hours=${hours}`)
+      await api.post(`/me/pause-monitoring?hours=${hours}`, {})
       await fetchMeData()
     } catch (err: any) {
       setError(err.response?.data?.detail || "Failed to pause monitoring")
@@ -138,7 +143,7 @@ function MePageContent() {
   const resumeMonitoring = async () => {
     try {
       setUpdating(true)
-      await api.post("/me/resume-monitoring")
+      await api.post("/me/resume-monitoring", {})
       await fetchMeData()
     } catch (err: any) {
       setError(err.response?.data?.detail || "Failed to resume monitoring")
@@ -210,7 +215,7 @@ function MePageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col flex-1 overflow-hidden bg-background">
       {/* Header */}
       <header className="border-b bg-card">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -228,7 +233,11 @@ function MePageContent() {
               {data.user.role}
             </Badge>
             <Button variant="ghost" size="sm" onClick={() => router.push("/dashboard")}>
-              Back to Dashboard
+              Dashboard
+            </Button>
+            <Button variant="ghost" size="sm" onClick={signOut}>
+              <LogOut className="h-4 w-4 mr-1" />
+              Sign Out
             </Button>
           </div>
         </div>
