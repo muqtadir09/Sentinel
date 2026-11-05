@@ -110,8 +110,8 @@ See `.env.example` for a copy-paste template with placeholder values.
 
 ```bash
 # Clone the repository
-git clone https://github.com/muqtadir09/algoquest-frontend.git
-cd algoquest-frontend
+git clone https://github.com/muqtadir09/Sentinel-Frontend.git
+cd Sentinel-frontend
 
 # Install dependencies
 pnpm install
